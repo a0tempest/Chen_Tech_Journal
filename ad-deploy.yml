@@ -1,0 +1,32 @@
+---
+- hosts: "192.168.3.138"
+  gather_facts: no
+  vars:
+    ansible_user: "Administrator"
+    ansible_password: "Champlain123!"
+    ansible_connection: winrm
+    ansible_winrm_server_cert_validation: ignore
+  tasks:
+  - name: Changing Hostname
+    win_hostname:
+      name: DC01-CHEN
+  - name: Install AD Services
+    win_feature:
+      name: AD-Domain-Services
+      include_management_tools: yes
+      include_sub_features: yes
+      state: present
+  - name: Install DNS Server
+    win_feature:
+      name: DNS
+      include_management_tools: yes
+      include_sub_features: yes
+      state: present
+  - name: Create New Domain
+    win_domain:
+      dns_domain_name: chen.local
+      safe_mode_password: Champlain123!
+    register: result
+  - name: Reboot after creation
+    win_reboot:
+    when: result.reboot_required
