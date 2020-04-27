@@ -1,0 +1,36 @@
+---
+- hosts: localhost
+  gather_facts: no
+  vars:
+    vcenter_server: "192.168.3.91"
+    vcenter_user: "administrator@group6.local"
+    vcenter_pass: "Champlain123!"
+    datacenter_name: "Group6-Datacenter"
+    cluster_name: "Group 6 Cluster"
+  tasks:
+  - name: Create dvSwitch
+    vmware_dvswitch:
+      validate_certs: no
+      hostname: '{{ vcenter_server }}'
+      username: '{{ vcenter_user }}'
+      password: '{{ vcenter_pass }}'
+      datacenter: '{{ datacenter_name }}'
+      switch_name: Ansible_Switch
+      version: 6.6.0
+      mtu: 9000
+      uplink_quantity: 4
+      state: present
+    delegate_to: localhost
+  - name: Create VLAN Port Group1
+    vmware_dvs_portgroup:
+      validate_certs: no
+      hostname: '{{ vcenter_server }}'
+      username: '{{ vcenter_user }}'
+      password: '{{ vcenter_pass }}'
+      switch_name: Ansible_Switch
+      portgroup_name: ansible-vlan-100
+      vlan_id: 100
+      num_ports: 8
+      portgroup_type: earlyBinding
+      state: present
+    delegate_to: localhost
